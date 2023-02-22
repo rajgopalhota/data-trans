@@ -1,37 +1,62 @@
 import './App.css';
-import {useState} from 'react'
-import axios from 'axios'
+import { useState } from 'react';
+import axios from 'axios';
+import App1 from './App1'
 function App() {
-  const [res, setRes] = useState(null);
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    axios.post('http://localhost:8888/', {
-      id : data.get('pid'),
-      name : data.get('pname'),
-      price : data.get('price')
-    }).then((response)=>{
-      console.log(response.data);
-      setRes(response.data)
-    }).catch((err)=>{console.log(err)})
-  }
-  return (
-    <div className="App">
-      <form onSubmit={handleSubmit}>
-        <label>Product id: <input type="text" name='pid' /></label>
-        <br />
-        <label>Product name: <input type="text" name='pname' /></label>
-        <br />
-        <label>Product price: <input type="text" name='price' /></label>
-        <br />
-        <br />
-        <input type='submit' value='Store' />
-        <br />
-        <br />
-        {res}
-      </form>
-    </div>
-  );
+    const [result, setResult] = useState(null);
+    function getProducts() {
+        axios.get("http://localhost:8888/products", {
+            params: {}
+        }).then((response) => {
+            console.log(response.data);
+            setResult(response.data);
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
+    function deleteProduct(id) {
+        axios.delete(`http://localhost:8888/delete/${id}`,
+            {
+                params: {}
+            }).then((response) => {
+                console.log(response.data);
+                getProducts();
+            }).catch((error) => {
+                console.log(error);
+            })
+    }
+    if (result == null) {
+        return (
+            <div className="App">
+                <App1 />
+                <button onClick={() => getProducts()}>GetProductData</button>
+            </div>
+        );
+    } else {
+        return (
+            <div className="App">
+                <App1 />
+                <table border="1">
+                    <tr>
+                        <th>PID</th>
+                        <th>PNAME</th>
+                        <th>PRICE</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                    {
+                        result.map((obj) => (
+                            <tr key={obj.id}>
+                                <td>{obj.id}</td>
+                                <td>{obj.name}</td>
+                                <td>{obj.price}</td>
+                                <td><button onClick={() => deleteProduct(obj.id)}>Delete</button></td>
+                            </tr>
+                        ))
+                    }
+                </table>
+            </div>
+        );
+    }
 }
 
 export default App;
