@@ -18,7 +18,8 @@ app.post('/', (req, res)=>{
 })
 
 app.get('/products',async (req,res) => {
-    const result = await col.find().toArray();
+    const price = {'price' : {$gte:'50'}}
+    const result = await col.find(price).toArray();
     console.log(result);
     res.send(result);
 })
